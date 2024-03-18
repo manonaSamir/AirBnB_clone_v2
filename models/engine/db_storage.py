@@ -21,6 +21,7 @@ class DBStorage:
     """interaacts with the MySQL database"""
     __engine = None
     __session = None
+    classes = [City, State, User, Place, Review, Amenity]
 
     def __init__(self):
         """Instantiate a DBStorage object"""
@@ -36,7 +37,6 @@ class DBStorage:
                                              HBNB_MYSQL_DB),
                                       pool_pre_ping=True
                                       )
-
         if HBNB_ENV == "test":
             Base.metadata.drop_all(self.__engine)
 
