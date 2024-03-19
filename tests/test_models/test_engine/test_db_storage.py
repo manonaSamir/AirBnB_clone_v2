@@ -1,121 +1,140 @@
 #!/usr/bin/python3
 '''
-    Tests for db_storage module
+    Testing the file_storage module.
 '''
-import os
-import json
+import time
 import unittest
-import pep8
-import models
-from models.base_model import BaseModel, Base
-from models.state import State
-from models.city import City
-from models.place import Place
+import sys
+from models.engine.db_storage import DBStorage
+from models import storage
 from models.user import User
-from datetime import datetime
-from models.engine import db_storage
-from models.amenity import Amenity
-from models.review import Review
-from models.engine.file_storage import FileStorage
-from sqlalchemy import Column, Integer, String, create_engine
-from sqlalchemy.orm import sessionmaker
+from models.state import State
+from models import storage
+from console import HBNBCommand
+from os import getenv
+from io import StringIO
+
+db = getenv("HBNB_TYPE_STORAGE")
 
 
-@unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db', 'not db storage')
-class TestDBStorage(unittest.TestCase):
+@unittest.skipIf(db != 'db', "Testing DBstorage only")
+class test_DBStorage(unittest.TestCase):
     '''
-    Tests to check the documentation and style of DBStorage class
+        Testing the DB_Storage class
     '''
+    @classmethod
+    def setUpClass(cls):
+        '''
+            Initializing classes
+        '''
+        cls.dbstorage = DBStorage()
+        cls.output = StringIO()
+        sys.stdout = cls.output
 
-    def test_pep8_conformance_db_storage(self):
+    @classmethod
+    def tearDownClass(cls):
         '''
-        Test that db_storage.py conforms to PEP8.
+            delete variables
         '''
-        pep8s = pep8.StyleGuide(quiet=True)
-        result = pep8s.check_files(['models/engine/db_storage.py'])
-        self.assertEqual(result.total_errors, 0, "Pep8 Errors")
+        del cls.dbstorage
+        del cls.output
 
-    def test_db_storage_module_docstring(self):
+    def create(self):
         '''
-        Test for the db_storage.py module docstring
+            Create HBNBCommand()
         '''
-        self.assertIsNot(db_storage.__doc__, None, "Missing docstring")
+        return HBNBCommand()
 
-    def test_db_storage_class_docstring(self):
+    def test_new(self):
         '''
-        Test for the DBStorage class docstring
+            Test DB new
         '''
-        self.assertIsNot(DBStorage.__doc__, None, "Missing docstring")
+        new_obj = State(name="California")
+        self.assertEqual(new_obj.name, "California")
 
-    def test_dbs_func_docstrings(self):
+    def test_dbstorage_user_attr(self):
         '''
-        Test for docstrings in DBStorage methods
+            Testing User attributes
         '''
-        for func in self.dbs_f:
-            self.assertIsNot(func[1].__doc__, None,
-                             "{:s} method needs a docstring".format(func[0]))
-            self.assertTrue(len(func[1].__doc__) >= 1,
-                            "{:s} method needs a docstring".format(func[0]))
+        new = User(email="melissa@hbtn.com", password="hello")
+        self.assertTrue(new.email, "melissa@hbtn.com")
 
-    def test_State(self):
+    def test_dbstorage_check_method(self):
         '''
-            Tests State class
+            Check methods exists
         '''
-        state = State(name='California')
-        if state.id in models.storage.all():
-            self.assertTrue(state.name, "California")
+        self.assertTrue(hasattr(self.dbstorage, "all"))
+        self.assertTrue(hasattr(self.dbstorage, "__init__"))
+        self.assertTrue(hasattr(self.dbstorage, "new"))
+        self.assertTrue(hasattr(self.dbstorage, "save"))
+        self.assertTrue(hasattr(self.dbstorage, "delete"))
+        self.assertTrue(hasattr(self.dbstorage, "reload"))
 
-    def test_City(self):
+    def test_dbstorage_all(self):
         '''
-            Tests City class
+            Testing all function
         '''
-        city = City(name='San Francisco')
-        if city.id in models.storage.all():
-            self.assertTrue(city.name, 'San Francisco')
+        storage.reload()
+        result = storage.all(None)
+        self.assertIsInstance(result, dict)
+        self.assertEqual(len(result), 0)
+        new = User(email="adriel@hbtn.com", password="abc")
+        console = self.create()
+        console.onecmd("create State name=California")
+        result = storage.all("State")
+        self.assertTrue(len(result) > 0)
 
-    def test_User(self):
+    def test_dbstorage_new_save(self):
         '''
-            Tests User class
+           Testing save method
         '''
-        new_user = User(
-            email='boop@boop.com',
-            password='boopword',
-            first_name='boop',
-            last_name='poob')
+        new_state = State(name="NewYork")
+        storage.new(new_state)
+        save_id = new_state.id
+        result = storage.all("State")
+        temp_list = []
+        for k, v in result.items():
+            temp_list.append(k.split('.')[1])
+            obj = v
+        self.assertTrue(save_id in temp_list)
+        self.assertIsInstance(obj, State)
 
-        self.assertIsInstance(new_user.email, str)
-        self.assertIsInstance(new_user.password, str)
-        self.assertIsInstance(new_user.first_name, str)
-        self.assertIsInstance(new_user.last_name, str)
+    def test_dbstorage_delete(self):
+        '''
+            Testing delete method
+        '''
+        new_user = User(email="haha@hehe.com", password="abc",
+                        first_name="Adriel", last_name="Tolentino")
+        storage.new(new_user)
+        save_id = new_user.id
+        key = "User.{}".format(save_id)
+        self.assertIsInstance(new_user, User)
+        storage.save()
+        old_result = storage.all("User")
+        del_user_obj = old_result[key]
+        storage.delete(del_user_obj)
+        new_result = storage.all("User")
+        self.assertNotEqual(len(old_result), len(new_result))
 
-        self.assertEqual(new_user.password, 'boopword')
-        self.assertEqual(new_user.first_name, 'boop')
-        self.assertEqual(new_user.last_name, 'poob')
+    def test_model_storage(self):
+        '''
+            Test to check if storage is an instance for DBStorage
+        '''
+        self.assertTrue(isinstance(storage, DBStorage))
 
-    def testPlace(self):
-        '''
-        Tests Place class
-        '''
-        place = Place(name="Home")
-        if place.id in models.storage.all():
-            self.assertTrue(place.name, "Home")
+    def test_get_db_storage(self):
+        """This test the get method in db_storage"""
+        new_state = State(name="NewYork")
+        storage.new(new_state)
+        first_state_id = list(storage.all("State").values())[0].id
+        self.assertEqual(type(storage.get("State", first_state_id)), State)
 
-    def testAmenity(self):
-        '''
-        Tests Amenity class
-        '''
-        amenity = Amenity(name='sink')
-        if amenity.id in models.storage.all():
-            self.assertTrue(amenity.name, 'sink')
-
-    def testReview(self):
-        '''
-        Test Review class
-        '''
-        review = Review(text='Nice place')
-        if review.id in models.storage.all():
-            self.assertTrue(review.text, 'Nice place')
-
-    def teardown(self):
-        self.session.close()
-        self.session.rollback()
+    def test_count_db_storage(self):
+        """This test the get method in db_storage"""
+        storage.reload()
+        result = storage.all(None)
+        count = storage.count(None)
+        self.assertEqual(len(result), count)
+        result = storage.all("State")
+        count = storage.count("State")
+        self.assertEqual(len(result), count)
