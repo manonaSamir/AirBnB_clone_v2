@@ -9,42 +9,49 @@ env.hosts = ['54.85.153.236', '54.160.89.208']
 
 
 def do_pack():
-    """generates a tgz archive"""
+    """Gerenate tgz."""
+    timestamp = time.strftime("%Y%m%d%H%M%S")
     try:
-        date = datetime.now().strftime("%Y%m%d%H%M%S")
-        if isdir("versions") is False:
-            local("mkdir versions")
-        file_name = "versions/web_static_{}.tgz".format(date)
-        local("tar -cvzf {} web_static".format(file_name))
-        return file_name
+        local("mkdir -p versions")
+        local("tar -cvzf versions/web_static_{:s}.tgz web_static/".
+              format(timestamp))
+        return ("versions/web_static_{:s}.tgz".format(timestamp))
     except:
         return None
 
 
 def do_deploy(archive_path):
-    """distributes an archive to the web servers"""
-    if exists(archive_path) is False:
+    """Function for deploy."""
+    if not os.path.exists(archive_path):
         return False
+
+    data_path = '/data/web_static/releases/'
+    tmp = archive_path.split('.')[0]
+    name = tmp.split('/')[1]
+    dest = data_path + name
+
     try:
-        file_n = archive_path.split("/")[-1]
-        no_ext = file_n.split(".")[0]
-        path = "/data/web_static/releases/"
-        put(archive_path, '/tmp/')
-        run('mkdir -p {}{}/'.format(path, no_ext))
-        run('tar -xzf /tmp/{} -C {}{}/'.format(file_n, path, no_ext))
-        run('rm /tmp/{}'.format(file_n))
-        run('mv {0}{1}/web_static/* {0}{1}/'.format(path, no_ext))
-        run('rm -rf {}{}/web_static'.format(path, no_ext))
-        run('rm -rf /data/web_static/current')
-        run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
+        put(archive_path, '/tmp')
+        run('mkdir -p {}'.format(dest))
+        run('tar -xzf /tmp/{}.tgz -C {}'.format(name, dest))
+        run('rm -f /tmp/{}.tgz'.format(name))
+        run('mv {}/web_static/* {}/'.format(dest, dest))
+        run('rm -rf {}/web_static'.format(dest))
+        run('rm -rf /data/web_static/current'.format(name))
+        run('ln -s {} /data/web_static/current'.format(dest))
         return True
     except:
         return False
 
 
 def deploy():
-    """creates and distributes an archive to the web servers"""
-    archive_path = do_pack()
-    if archive_path is None:
+    """Compress and upload files to remote server."""
+    path = do_pack()
+    print(path)
+    if path is None:
         return False
-    return do_deploy(archive_path)
+
+    return do_deploy(path)
+
+
+deploy()
