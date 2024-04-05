@@ -1,6 +1,14 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\models\\engine",
+    "\\tests\\test_models",
+    "\\tests\\test_models\\test_engine",
+    "\\venv\\include",
+    "\\venv\\include\\site",
+    "\\venv\\lib64",
+    "\\venv\\share"
   ],
+  "SelectedNode": "\\models",
   "PreviewInSolutionExplorer": false
 }
