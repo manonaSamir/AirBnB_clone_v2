@@ -20,6 +20,20 @@ def do_pack():
         return None
 
 
+
+def do_pack():
+    """generates a tgz archive"""
+    try:
+        date = datetime.now().strftime("%Y%m%d%H%M%S")
+        if not isdir("versions"):
+            local("mkdir -p versions")
+        file_name = "versions/web_static_{}.tgz".format(date)
+        local("tar -cvzf {} web_static".format(file_name))
+        return file_name
+    except Exception as e:
+        print(e)
+        return None
+
 def do_deploy(archive_path):
     """Distribute an archive to web servers"""
     if (os.path.isfile(archive_path) is False):
@@ -43,9 +57,8 @@ def do_deploy(archive_path):
 
 
 def deploy():
-    """Create and distributes an archive to web servers"""
-    try:
-        path = do_pack()
-        return do_deploy(path)
-    except:
+    """creates and distributes an archive to the web servers"""
+    archive_path = do_pack()
+    if archive_path is None:
         return False
+    return do_deploy(archive_path)
