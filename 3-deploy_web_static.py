@@ -2,6 +2,7 @@
 """Distributes an archive to your web servers, using the function do_deploy"""
 from fabric.contrib import files
 from fabric.api import env, put, run, local
+from os.path import exists
 import time
 import os
 
