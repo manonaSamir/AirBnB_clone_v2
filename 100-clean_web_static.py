@@ -6,17 +6,47 @@ from fabric.api import *
 env.hosts = ['54.85.153.236', '54.160.89.208']
 env.user = "ubuntu"
 
+did_run = False
+
 
 def do_clean(number=0):
-    """ CLEANS """
+    """The functions that cleans the archives."""
 
-    number = int(number)
+    global did_run
+    # First deletes archives in local (once)!
+    if not did_run:
+        try:
+            archives = local('ls -ltr versions', capture=True).split('\n')[1::]
+            archives = [archive.split()[-1] for archive in archives]
+            count = len(archives)
+            number = int(number)
 
-    if number == 0:
-        number = 1
-    else:
-        number += 1
+            # Deletes all - number archives in local
+            if number > 1 and count > number:
+                for i in range(count - number):
+                    local('rm versions/{}'.format(archives[i]))
+            elif count > 1 and count > number:
+                for i in range(count - 1):
+                    local('rm versions/{}'.format(archives[i]))
+            did_run = True
+        except Exception as e:
+            print(e)
 
-    local('cd versions ; ls -t | tail -n +{} | xargs rm -rf'.format(number))
-    path = '/data/web_static/releases'
-    run('cd {} ; ls -t | tail -n +{} | xargs rm -rf'.format(path, number))
+    # Delete the folders in /data/web_static/releases in remote
+    remote = '/data/web_static/releases'
+    try:
+        archives = run('ls -ltr {}'.format(remote)).split('\n')[1::]
+        archives = [archive.split()[-1] for archive in archives
+                    if not archive.count('test')]
+        count = len(archives)
+        number = int(number)
+
+        # Deletes all - number archives in remote
+        if number > 1 and count > number:
+            for i in range(count - number):
+                run('rm -rf {}/{}'.format(remote, archives[i]))
+        elif count > 1 and count > number:
+            for i in range(count - 1):
+                run('rm -rf {}/{}'.format(remote, archives[i]))
+    except Exception:
+        pass
