@@ -35,7 +35,7 @@ def do_clean(number=0):
     # Delete the folders in /data/web_static/releases in remote
     remote = '/data/web_static/releases'
     try:
-        archives = run('ls -ltr {}'.format(remote)).split('\n')[1::]
+        archives = sudo('ls -ltr {}'.format(remote)).split('\n')[1::]
         archives = [archive.split()[-1] for archive in archives
                     if not archive.count('test')]
         count = len(archives)
