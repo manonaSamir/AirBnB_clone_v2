@@ -33,7 +33,6 @@ def do_clean(number=0):
             print(e)
 
     # Delete the folders in /data/web_static/releases in remote
-    # Delete the folders in /data/web_static/releases in remote
     remote = '/data/web_static/releases'
     try:
         archives = run('ls -ltr {}'.format(remote)).split('\n')[1::]
@@ -42,16 +41,12 @@ def do_clean(number=0):
         count = len(archives)
         number = int(number)
 
-        # Handle the case where there's only one archive
-        if count == 1:
-            print("There's only one archive available. Not deleting anything.")
-        else:
-            # Deletes all - number archives in remote
-            if number > 1 and count > number:
-                for i in range(count - number):
-                    run('rm -rf {}/{}'.format(remote, archives[i]))
-            elif count > 1 and count > number:
-                for i in range(count - 1):
-                    run('rm -rf {}/{}'.format(remote, archives[i]))
+        # Deletes all - number archives in remote
+        if number > 1 and count > number:
+            for i in range(count - number):
+                sudo('rm -rf {}/{}'.format(remote, archives[i]))
+        elif count > 1 and count > number:
+            for i in range(count - 1):
+                sudo('rm -rf {}/{}'.format(remote, archives[i]))
     except Exception:
         pass
