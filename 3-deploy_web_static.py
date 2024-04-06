@@ -44,12 +44,12 @@ def do_deploy(archive_path):
     except SpecificException as e:
         return False
 
-
 def deploy():
     """ creates and distributes an archive to your web servers
     """
     new_archive_path = do_pack()
     if exists(new_archive_path) is False:
         return False
-        result = do_deploy(new_archive_path)
-        return result
+
+    result = do_deploy(new_archive_path)
+    return result
