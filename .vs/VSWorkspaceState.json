@@ -1,14 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\models\\engine",
-    "\\tests\\test_models",
-    "\\tests\\test_models\\test_engine",
-    "\\venv\\include",
-    "\\venv\\include\\site",
-    "\\venv\\lib64",
-    "\\venv\\share"
+    "\\models",
+    "\\models\\engine"
   ],
-  "SelectedNode": "\\models",
+  "SelectedNode": "\\models\\engine\\db_storage.py",
   "PreviewInSolutionExplorer": false
 }
