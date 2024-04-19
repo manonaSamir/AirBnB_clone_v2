@@ -1,0 +1,28 @@
+from flask import Flask, render_template, request, url_for, redirect
+
+app = Flask(__name__)
+
+
+@app.route('/')
+def home():
+    return ("Hello HBNB!")
+
+@app.route('/hbnb')
+def hbnb():
+    return ("HBNB")
+
+@app.route('/c/<text>')
+def c_text(text):    
+    replaced = text.replace('_', ' ')
+    return f"C {replaced}"
+
+@app.route('/python/', defaults={'text': 'is_cool'})
+@app.route('/python/<text>')
+def python_text(text):
+    # Replace underscores with spaces in the text
+    replaced = text.replace('_', ' ')
+    return f"Python {replaced}"
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
