@@ -11,7 +11,7 @@ from flask import Flask, render_template, request, url_for, redirect
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route("/", strict_slashes=False)
 def home():
     return ("Hello HBNB!")
 

@@ -7,31 +7,31 @@ from flask import Flask, render_template, request, url_for, redirect
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/', strict_slashes=False)
 def home():
     return ("Hello HBNB!")
 
-@app.route('/hbnb')
+@app.route('/hbnb', strict_slashes=False)
 def hbnb():
     return ("HBNB")
 
-@app.route('/c/<text>')
-def c_text(text):    
+@app.route('/c/<text>', strict_slashes=False)
+def c_text(text):
     replaced = text.replace('_', ' ')
     return f"C {replaced}"
 
-@app.route('/python/', defaults={'text': 'is_cool'})
+@app.route('/python/', defaults={'text': 'is_cool'}, strict_slashes=False)
 @app.route('/python/<text>')
 def python_text(text):
     # Replace underscores with spaces in the text
     replaced = text.replace('_', ' ')
     return f"Python {replaced}"
 
-@app.route('/number/<int:n>')
+@app.route('/number/<int:n>', strict_slashes=False)
 def number_n(n):
     return f"{n} is a number"
 
-@app.route('/number_template/<int:n>')
+@app.route('/number_template/<int:n>', strict_slashes=False)
 def number_template(n):
     return render_template('5-number.html', number=n)
 
