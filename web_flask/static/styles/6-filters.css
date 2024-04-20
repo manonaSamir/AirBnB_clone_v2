@@ -46,10 +46,16 @@
 	display: inline-block;
 	max-height: 300px;
 	overflow-y: scroll;
+	z-index: 100;
+    position: sticky;
 }
 
 .filter_amenities:hover .popover {
 	display: inline-block;
+	max-height: 300px;
+	overflow-y: scroll;
+	z-index: 100;
+    position: sticky;
 }
 
 ul {
