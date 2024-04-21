@@ -16,7 +16,8 @@ class State(BaseModel, Base):
         {'mysql_default_charset': 'latin1'})
     if models.storage_t == "db":
         name = Column(String(128), nullable=False)
-        cities = relationship("City", backref="state", cascade="all, delete-orphan")
+        cities = relationship("City", backref="state",
+                              cascade="all, delete-orphan")
     else:
         name = ""
 
