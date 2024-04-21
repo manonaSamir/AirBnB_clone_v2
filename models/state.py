@@ -16,16 +16,11 @@ class State(BaseModel, Base):
         {'mysql_default_charset': 'latin1'})
     if models.storage_t == "db":
         name = Column(String(128), nullable=False)
-        cities = relationship("City", backref="state", cascade="all, delete")
+        cities = relationship("City", backref="state", cascade="all, delete-orphan")
     else:
         name = ""
 
         @property
         def cities(self):
-            """getter for list of city instances related to the state"""
-            cities_list = []
-            all_cities = models.storage.all(City)
-            for city in all_cities.values():
-                if city.state_id == self.id:
-                    cities_list.append(city)
-            return cities_list
+            FLcity = models.storage.all(models.classes['City']).values()
+            return [city for city in FLcity if city.state_id == self.id]
