@@ -22,5 +22,10 @@ class State(BaseModel, Base):
 
         @property
         def cities(self):
-            FLcity = models.storage.all(models.classes['City']).values()
-            return [city for city in FLcity if city.state_id == self.id]
+            """getter for list of city instances related to the state"""
+            cities_list = []
+            all_cities = models.storage.all(City)
+            for city in all_cities.values():
+                if city.state_id == self.id:
+                    cities_list.append(city)
+            return cities_list
