@@ -16,8 +16,6 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-classes = {"Amenity": Amenity, "City": City, "Place": Place,
-           "Review": Review, "State": State, "User": User}
 
 class DBStorage:
     """interaacts with the MySQL database"""
@@ -43,19 +41,20 @@ class DBStorage:
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        '''
-        Returns dictionary of all objects in the database
-        '''
-        allobjs = {}
-        if cls:
-            allobjs = {obj.__class__.__name__ + "." + obj.id: obj for
-                       obj in self.__session.query(classes[cls]).all()}
+        """query on the current database session"""
+        objs = []
+        dct = {}
+        if cls is None:
+            for item in self.classes:
+                objs.extend(self.__session.query(item).all())
         else:
-            for tbl in Base.__subclasses__():
-                table = self.__session.query(tbl).all()
-                for obj in table:
-                    allobjs[obj.__class__.__name__ + "." + obj.id] = obj
-        return allobjs
+            if type(cls) is str:
+                cls = eval(cls)
+            objs = self.__session.query(cls).all()
+
+        for obj in objs:
+            dct[obj.__class__.__name__ + '.' + obj.id] = obj
+        return dct
 
     def new(self, obj):
         """add the object to the current database session"""
@@ -79,4 +78,4 @@ class DBStorage:
 
     def close(self):
         """call remove() method on the private session attribute"""
-        self.__session.close()
+        self.__session.remove()
