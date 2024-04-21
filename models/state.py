@@ -13,7 +13,7 @@ class State(BaseModel, Base):
     """State class """
     __tablename__ = "states"
     __table_args__ = (
-        {'mysql_default_charset': 'utf8mb4'})
+        {'mysql_default_charset': 'latin1'})
     if models.storage_t == "db":
         name = Column(String(128), nullable=False)
         cities = relationship("City", backref="state",
