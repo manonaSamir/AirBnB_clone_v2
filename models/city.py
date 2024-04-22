@@ -14,7 +14,7 @@ class City(BaseModel, Base):
         {'mysql_default_charset': 'latin1'})
     if models.storage_t == "db":
         name = Column(String(128), nullable=False)
-        state_id = Column(String(60), ForeignKey('states.id'), nullable=True)
+        state_id = Column(String(60), ForeignKey('states.id'), nullable=False)
         places = relationship("Place", cascade="all, delete", backref="cities")
     else:
         state_id = ""
