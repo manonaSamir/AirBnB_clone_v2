@@ -13,7 +13,7 @@ class City(BaseModel, Base):
     __table_args__ = (
         {'mysql_default_charset': 'latin1'})
     if models.storage_t == "db":
-        id = Column(String(60), primary_key=True)  # Ensure the ID is correctly typed
+        id = Column(String(60), primary_key=True)
         name = Column(String(128), nullable=False)
         state_id = Column(String(60), ForeignKey('states.id'), nullable=False)
         places = relationship("Place", cascade="all, delete", backref="cities")
