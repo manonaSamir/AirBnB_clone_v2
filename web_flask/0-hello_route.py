@@ -16,7 +16,7 @@ def home():
     return ("Hello HBNB!")
 
 @app.route("/airbnb-onepage", strict_slashes=False)
-def home():
+def Index():
     return ("Hello HBNB!")
 
 
